@@ -1,0 +1,150 @@
+HOW TO SET UP SUPABASE DATABASE - COMPLETE GUIDE
+=================================================
+
+STEP 1: CREATE STORAGE BUCKET
+=============================
+1. Go to: https://supabase.com/dashboard
+2. Select your project
+3. Click "Storage" in left sidebar
+4. Click "Create a new bucket"
+5. Name: vault-files
+6. Make it PRIVATE (toggle off "Public bucket")
+7. Click "Create bucket"
+
+✅ Now your storage bucket is ready
+
+
+STEP 2: RUN ALL DATABASE SQL CODE
+==================================
+1. Go to: https://supabase.com/dashboard → Your Project
+2. Click "SQL Editor" in left sidebar
+3. Click "New Query" (blue button)
+4. DELETE any template code
+5. PASTE the complete code from SUPABASE_SETUP.sql file
+6. Click "Run" button (or press Ctrl+Enter)
+
+✅ Wait for it to complete (should be instant)
+
+
+STEP 3: VERIFY EVERYTHING WORKED
+=================================
+After running the SQL, check:
+
+A. Check Tables Were Created:
+   - Click "Table Editor" in sidebar
+   - You should see:
+     ✓ user_preferences
+     ✓ user_documents
+   
+B. Check RLS is Enabled:
+   - Click on "user_preferences" table
+   - You should see "RLS enabled" label
+   - Click on "user_documents" table
+   - You should see "RLS enabled" label
+
+C. Check Policies Exist:
+   - In each table, go to "RLS Policies" tab
+   - You should see multiple policies listed
+
+D. Check Storage Bucket:
+   - Click "Storage" in sidebar
+   - You should see "vault-files" bucket
+
+
+STEP 4: UPDATE YOUR SUPABASE PROJECT URL (IF NEEDED)
+=====================================================
+If you haven't already, add your Supabase credentials to your app:
+
+1. Go to: https://supabase.com/dashboard → Your Project → Settings → API
+2. Copy your:
+   - Project URL
+   - anon public key
+
+3. In your app, go to: src/lib/supabase.ts
+4. Replace with your actual values:
+
+   const supabaseUrl = "YOUR_PROJECT_URL_HERE"
+   const supabaseAnonKey = "YOUR_ANON_KEY_HERE"
+
+   Example:
+   const supabaseUrl = "https://abcdefghijk.supabase.co"
+   const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ..."
+
+
+STEP 5: TEST THE APP
+====================
+1. Go to your project folder
+2. Run: npm start
+3. Press 'w' to open in web browser
+4. Login with your test account
+5. Try uploading a file
+6. Go to Settings and toggle dark mode
+7. Check Supabase Dashboard → Table Editor → user_preferences
+   → You should see a new row with your user_id and settings!
+
+✅ If you see the row, everything is working!
+
+
+TROUBLESHOOTING
+===============
+
+❌ Error: "Table 'public.user_documents' not found"
+   → Re-run the SQL script (you might have skipped Step 2)
+
+❌ Error: "RLS policy error"
+   → Verify RLS is enabled on both tables
+   → Check that policies are listed in each table
+
+❌ Settings not saving to Supabase
+   → Check if user_preferences table has a row for your user
+   → Open browser DevTools (F12) → Console
+   → Look for any error messages
+
+❌ Can't upload files
+   → Check vault-files bucket exists
+   → Make sure it's set to PRIVATE
+   → Check storage policies in dashboard
+
+❌ Files can't be downloaded
+   → Check the download_url stored in user_documents table
+   → Make sure it's a valid signed URL format
+
+
+WHAT EACH TABLE DOES
+====================
+
+user_preferences:
+  - Stores user settings (dark_mode, notifications, auto_sync)
+  - One row per user
+  - Auto-updates timestamp when changed
+
+user_documents:
+  - Stores file metadata (name, size, mime type, URLs)
+  - Multiple rows per user
+  - Auto-updates timestamp when changed
+
+storage.vault-files:
+  - Stores the actual file contents
+  - Files organized by user_id folder
+  - Only accessible by file owner
+
+
+IF SOMETHING BREAKS
+===================
+You can always:
+1. Delete all tables from Dashboard
+2. Re-run the SQL script from scratch
+3. Everything will be recreated fresh
+
+This is safe because of ON DELETE CASCADE - user data is automatically cleaned up.
+
+
+NEED HELP?
+==========
+If you get stuck:
+1. Check Supabase Dashboard → Logs (bottom left)
+2. Check your browser console (F12 → Console)
+3. Make sure your Supabase project has an active database
+4. Make sure you're signed into Supabase with the correct project
+
+✅ YOU'RE ALL SET! Your database is production-ready.

@@ -11,8 +11,9 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.ax9.universalfilevault",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F0F1E",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -28,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0F0F1E",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
@@ -40,6 +41,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9eafd1c7-2519-443a-bc7e-aa4cb983c0b9"
+      }
     }
   }
 }

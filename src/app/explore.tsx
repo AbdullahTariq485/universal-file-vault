@@ -1,180 +1,222 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
+} from 'react-native';
+import { useSettings } from '../context/settings-context';
+import { supabase } from '../lib/supabase';
 
-import { ExternalLink } from '@/components/external-link';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+export default function ActivityScreen() {
+  const { darkMode } = useSettings();
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+  useEffect(() => {
+    fetchActivities();
+  }, []);
+
+  const fetchActivities = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('user_documents')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setActivities(data || []);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setLoading(false);
+    }
   };
-  const theme = useTheme();
-
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
 
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
-          <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
-          </ThemedText>
+    <ScrollView style={[styles.container, { backgroundColor: darkMode ? '#0F0F1E' : '#FFFFFF' }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: darkMode ? '#2D2D4A' : '#E0E0E0' }]}>
+        <Text style={[styles.title, { color: darkMode ? '#FFFFFF' : '#000000' }]}>📊 Vault Activity</Text>
+      </View>
 
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
-        </ThemedView>
+      {/* Stats Section */}
+      <View style={styles.statsGrid}>
+        <View style={[styles.statCard, { backgroundColor: darkMode ? '#1A1A2E' : '#F5F5F5' }]}>
+          <Text style={styles.statIcon}>📁</Text>
+          <Text style={[styles.statLabel, { color: darkMode ? '#8892B0' : '#999999' }]}>Total Files</Text>
+          <Text style={[styles.statValue, { color: darkMode ? '#FFFFFF' : '#000000' }]}>{activities.length}</Text>
+        </View>
 
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+        <View style={[styles.statCard, { backgroundColor: darkMode ? '#1A1A2E' : '#F5F5F5' }]}>
+          <Text style={styles.statIcon}>💾</Text>
+          <Text style={[styles.statLabel, { color: darkMode ? '#8892B0' : '#999999' }]}>Total Size</Text>
+          <Text style={[styles.statValue, { color: darkMode ? '#FFFFFF' : '#000000' }]}>
+            {(activities.reduce((acc, item) => acc + item.file_size, 0) / (1024 * 1024)).toFixed(1)} MB
+          </Text>
+        </View>
+      </View>
 
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
-              </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
-          </Collapsible>
+      {/* Recent Activity */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: darkMode ? '#A0AEC0' : '#666666' }]}>📅 Recent Activity</Text>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+        {loading ? (
+          <View style={{ paddingVertical: 40 }}>
+            <ActivityIndicator size="large" color="#6366F1" />
+          </View>
+        ) : activities.length === 0 ? (
+          <View style={[styles.emptyState, { backgroundColor: darkMode ? '#1A1A2E' : '#F5F5F5' }]}>
+            <Text style={styles.emptyIcon}>📭</Text>
+            <Text style={[styles.emptyText, { color: darkMode ? '#8892B0' : '#999999' }]}>No activity yet</Text>
+          </View>
+        ) : (
+          activities.map((activity) => (
+            <View key={activity.id} style={[styles.activityItem, { backgroundColor: darkMode ? '#1A1A2E' : '#F5F5F5' }]}>
+              <View style={[styles.activityIcon, { backgroundColor: darkMode ? '#2D2D4A' : '#EEEEEE' }]}>
+                <Text style={styles.icon}>⬆️</Text>
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={[styles.activityTitle, { color: darkMode ? '#FFFFFF' : '#000000' }]} numberOfLines={1}>
+                  {activity.file_name}
+                </Text>
+                <Text style={[styles.activityDate, { color: darkMode ? '#8892B0' : '#999999' }]}>
+                  {new Date(activity.created_at).toLocaleDateString()} •{' '}
+                  {(activity.file_size / 1024).toFixed(1)} KB
+                </Text>
+              </View>
+              <Text style={[styles.badge, { backgroundColor: darkMode ? '#2D2D4A' : '#E0E0E0', color: darkMode ? '#6366F1' : '#666666' }]}>Uploaded</Text>
+            </View>
+          ))
+        )}
+      </View>
 
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
-        </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
+      <View style={styles.footer} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
+  container: {
+    flex: 1,
+    backgroundColor: '#0F0F1E',
+  },
+  header: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2D2D4A',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#1A1A2E',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2D2D4A',
+  },
+  statIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#8892B0',
+    marginBottom: 4,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  section: {
+    marginHorizontal: 16,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#A0AEC0',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: '#1A1A2E',
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#2D2D4A',
+  },
+  activityIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#2D2D4A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  icon: {
+    fontSize: 20,
+  },
+  activityContent: {
     flex: 1,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  activityTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
   },
-  container: {
-    maxWidth: MaxContentWidth,
-    flexGrow: 1,
+  activityDate: {
+    fontSize: 12,
+    color: '#8892B0',
   },
-  titleContainer: {
-    gap: Spacing.three,
+  badge: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6366F1',
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  emptyState: {
     alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
+    paddingVertical: 40,
   },
-  centerText: {
-    textAlign: 'center',
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 12,
   },
-  pressed: {
-    opacity: 0.7,
+  emptyText: {
+    fontSize: 16,
+    color: '#8892B0',
+    fontWeight: '500',
   },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
+  footer: {
+    height: 40,
   },
 });
+
