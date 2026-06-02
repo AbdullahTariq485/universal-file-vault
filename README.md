@@ -1,56 +1,27 @@
-# Welcome to your Expo app 👋
+🗂️ Project Report: Universal File Vault
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+1. Project Idea
+A secure, cross-platform cloud storage application built with React Native (Expo) and Supabase. It provides users with a private, high-performance vault to upload, track, and manage documents across iOS, Android, and web engines from a single codebase.
 
-## Get started
+2. Main Features
+Instant Auth: Secure login and registration with validation checks.
+Smart Uploads: Streamlined system file picker with instant cloud syncing.
+Auto-Theme: Unified support for system-wide light and high-contrast dark modes.
+Alert System: Real-time context notifications for file uploads and status changes.
 
-1. Install dependencies
+3. Database & Functionality
+Powered by Supabase (PostgreSQL) to deliver secure data management:
+Relational Storage: Links account metadata (user_preferences) and file data (user_documents) directly to the user's account identifier.
+Row-Level Security (RLS): Database-level rules that lock records so users can only view or modify their own data.
+Secure Storage Buckets: Stores raw file binaries inside an isolated storage partition (vault-files).
+Automated Triggers: Tracks file updates and refreshes system logs automatically.
 
-   ```bash
-   npm install
-   ```
 
-2. Start the app
 
-   ```bash
-   npx expo start
-   ```
+4. Unique Feature
+Zero-Config Connection Pipeline
+The app uses a custom memory singleton loop tied to the runtime engine (globalThis). This configuration automatically detects whether the app is running on a web browser, a native mobile phone, or a server environment. It adjusts storage configurations on the fly to eliminate duplicate network connections and ensure fast, secure file transfers without requiring external config files.
 
-In the output, you'll find options to open the app in a
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
