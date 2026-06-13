@@ -1,3 +1,9 @@
+Important Note:
+Demo Profile:
+Email: i@gmail.com
+Password: ik1994
+Make sure to login using these credentials in case of not being signed up due to rate limits in supabase.
+
 🗂️ Project Report: Universal File Vault
 
 1. Project Idea
