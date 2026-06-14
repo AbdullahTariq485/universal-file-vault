@@ -1,7 +1,7 @@
 Important Note:
 
 apk link: https://expo.dev/accounts/abdullah485/projects/universalfilevault/builds/4b715af1-e3ca-405f-b7ce-21d5853b1c73
-(App is still in development stages so some feature may show errors.Can be just early accessed for now.)
+("This app is in development. Some features may contain errors. Try early access now!".)
 
 Demo Profile:
 
